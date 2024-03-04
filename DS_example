@@ -37,27 +37,26 @@ int main() {
     case 1:
         cout << "몇줄로 할 것인지 작성하시오: ";
         cin >> line;
+        for (int i = 1; i <= line; ++i) {
+            printStars(i);
+        }
         break;
 
     case 2:
         cout << "몇줄로 할 것인지 작성하시오: ";
         cin >> lines;
+
+        for (int j = 1; j <= lines; ++j) {
+            printNum(j);
+        }
+
         break;
 
     default:
+        cout << "잘못된 값입니다." << "\n";
         break;
     }
 
-
-   
-
-    for (int i = 1; i <= line; ++i) {
-        printStars(i);
-    }
-
-    for (int j = 1; j <= lines; ++j) {
-        printNum(j);
-    }
 
     return 0;
 }
