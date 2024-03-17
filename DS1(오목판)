@@ -1,0 +1,73 @@
+#include <iostream>
+
+using namespace std;
+
+#define SIZE 18
+
+int board[SIZE][SIZE];
+int blackstone = 0;
+int whitestone = 0;
+
+
+void resetboard() {
+	for (int i = 0; i < SIZE; ++i) {
+		for (int j = 0; j < SIZE; ++j) {
+			board[i][j] = 0;
+		}
+	}
+}
+
+void printboard() {
+	for (int i = 0; i < SIZE; ++i) {
+		for (int j = 0; j < SIZE; ++j) {
+			switch (board[i][j])
+			{
+			case 0:
+				cout << "+ ";
+				break;
+			case 1:
+				cout << "B ";
+				break;
+			case 2:
+				cout << "W ";
+				break;
+			}
+		}
+		cout << '\n';
+	}
+}
+
+bool placestone(int x, int y, int stone) {
+	if (board[x][y] != 0) {
+		cout << "자리에 돌이 있습니다. 다른 위치에 돌을 두세요" << '\n';
+		return false;
+	}
+	board[x][y] = stone;
+	if (stone == 1)
+		blackstone++;
+	else
+		whitestone++;
+	return true;
+
+}
+
+int main() {
+	resetboard();
+	printboard();
+
+	int x, y;
+	int stone = 1;
+
+	while (true){
+		
+		cout << "현재 흑돌 개수 : " << blackstone << " / 현재 백돌 개수 : " << whitestone << '\n';
+		cout << (stone == 1 ? "흑돌" : "백돌") << "을 놓을 위치의 좌표를 입력해 주세요 : ";
+		cin >> x >> y;
+
+		if (placestone(x, y, stone)) {
+			printboard();
+			stone = (stone == 1) ? 2 : 1;
+		}
+	}
+
+}
