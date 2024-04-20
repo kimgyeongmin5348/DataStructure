@@ -1,0 +1,197 @@
+#include <iostream>
+
+using namespace std;
+
+#define SIZE 18
+
+int board[SIZE][SIZE];
+int blackstone = 0;
+int whitestone = 0;
+
+
+void resetboard() {
+	for (int i = 0; i < SIZE; ++i) {
+		for (int j = 0; j < SIZE; ++j) {
+			board[i][j] = 0;
+		}
+	}
+}
+
+void printboard() {
+	for (int i = 0; i < SIZE; ++i) {
+		for (int j = 0; j < SIZE; ++j) {
+			switch (board[i][j])
+			{
+			case 0:
+				cout << "+ ";
+				break;
+			case 1:
+				cout << "B ";
+				break;
+			case 2:
+				cout << "W ";
+				break;
+			}
+		}
+		cout << '\n';
+	}
+}
+
+bool placestone(int x, int y, int stone) {
+	if (board[x][y] != 0) {
+		cout << "자리에 돌이 있습니다. 다른 위치에 돌을 두세요" << '\n';
+		return false;
+	}
+	board[x][y] = stone;
+	if (stone == 1)
+		blackstone++;
+	else
+		whitestone++;
+	return true;
+
+}
+
+void CountStone() {
+	int maxCount = 0;
+	int maxStone = 0;
+	// 가로줄 검사
+	for (int i = 0; i < SIZE; ++i) {
+		int bCount = 0, wCount = 0;
+		for (int j = 0; j < SIZE; ++j) {			
+			if (board[i][j] == 1) {
+				bCount++;
+				wCount = 0;
+			}
+			else if (board[i][j] == 2) {
+				wCount++;
+				bCount = 0;
+			}
+			if (blackstone > maxCount) {
+				maxCount = bCount;
+				maxStone = 1;
+			}
+			else if (whitestone > maxCount) {
+				maxCount = wCount;
+				maxStone = 2;
+			}
+		}
+	}
+	// 세로줄 검사
+	for (int j = 0; j < SIZE; ++j) {
+		int bCount = 0, wCount = 0;
+		for (int i = 0; i < SIZE; ++i) {
+			if (board[i][j] == 1) {
+				bCount++;
+				wCount = 0;
+			}
+			else if (board[i][j] == 2) {
+				wCount++;
+				bCount = 0;
+			}
+			if (blackstone > maxCount) {
+				maxCount = bCount;
+				maxStone = 1;
+			}
+			else if (whitestone > maxCount) {
+				maxCount = wCount;
+				maxStone = 2;
+			}
+		}
+	}
+	if (maxStone == 1)
+		cout << "흑돌이" << maxCount << "개 연속으로 놓였습니다." << '\n';
+	else if(maxStone ==2)
+		cout << "백돌이" << maxCount << "개 연속으로 놓였습니다." << '\n';
+}
+
+void CrossCount() {
+	int maxCount = 0, maxStone = 0;
+	for (int i = 0; i < SIZE; i++) {
+		for (int j = 0; j < SIZE; j++) {
+			if (board[i][j] == 1 || board[i][j] == 2) {
+				// 오른쪽 아래 대각선 검사
+				int bCount = 0, wCount = 0, r = i, c = j;
+				while (r < SIZE && c < SIZE && (board[r][c] == 1 || board[r][c] == 2)) {
+					if (board[r][c] == 1) {
+						bCount++;
+						wCount = 0;
+					}
+					else {
+						wCount++;
+						bCount = 0;
+					}
+					if (bCount > maxCount) {
+						maxCount = bCount;
+						maxStone = 1;
+					}
+					else if (wCount > maxCount) {
+						maxCount = wCount;
+						maxStone = 2;
+					}
+					r++;
+					c++;
+				}
+
+				// 왼쪽 아래 대각선 검사
+				bCount = 0, wCount = 0, r = i, c = j;
+				while (r < SIZE && c >= 0 && (board[r][c] == 1 || board[r][c] == 2)) {
+					if (board[r][c] == 1) {
+						bCount++;
+						wCount = 0;
+					}
+					else {
+						wCount++;
+						bCount = 0;
+					}
+					if (bCount > maxCount) {
+						maxCount = bCount;
+						maxStone = 1;
+					}
+					else if (wCount > maxCount) {
+						maxCount = wCount;
+						maxStone = 2;
+					}
+					r++;
+					c--;
+				}
+			}
+		}
+	}
+	if (maxStone == 1)
+		cout << "흑돌이" << maxCount << "개 연속으로 놓였습니다." << '\n';
+	else if (maxStone == 2)
+		cout << "백돌이" << maxCount << "개 연속으로 놓였습니다." << '\n';
+}
+
+int main() {
+	resetboard();
+	printboard();
+
+	int x, y;
+	int stone = 1;
+	char command;
+
+	while (1) {
+
+		cout << "현재 흑돌 개수 : " << blackstone << " / 현재 백돌 개수 : " << whitestone << '\n';
+		cout << (stone == 1 ? "흑돌" : "백돌") << "을 놓을 위치의 좌표를 입력해 주세요 : ";
+		cin >> x >> y;
+		cout << "===========================================================================" << '\n';
+
+		if (placestone(x, y, stone)) {
+			printboard();
+			stone = (stone == 1) ? 2 : 1;
+		}
+
+		cout << "c 를 누르면 가로,세로줄의 돌 개수를 구합니다." << '\n';
+		cout << "명령어를 누르시오 또는 계속 하시려면 아무키나 누르시오 : ";
+		cin >> command;
+		if (command == 'c') {
+			CountStone();
+			continue;
+		}
+		
+
+	}
+
+}
