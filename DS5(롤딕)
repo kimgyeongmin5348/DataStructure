@@ -1,0 +1,209 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+using namespace std;
+
+
+class Champion {
+    string name;
+    int hp;
+    int mp;
+    int speed;
+    int range;
+    string position;
+
+public:
+    Champion() {}
+    Champion(const string& name, int hp, int mp, int speed, int range, const string& position) : name(name), hp(hp), mp(mp), speed(speed), range(range), position(position) {}
+
+    friend ostream& operator<<(ostream& os, const Champion& champ) {
+        return os << "name - " << champ.name << " hp - " << champ.hp << " mp - " << champ.mp << " speed - " << champ.speed << " range - " << champ.range << " position - " << champ.position << '\n';
+    }
+
+    const string& getName() const {
+        return name;
+    }
+
+    const string& getPosition() const {
+        return position;
+    }
+
+    int getHp() const {
+        return hp;
+    }
+};
+
+const int MAX_CHAMPIONS = 100;
+Champion champions[MAX_CHAMPIONS];
+int numChampions = 0;
+
+void SearchChampion(const string& championName, int index = 0) {
+    if (index == numChampions) {
+        cout << "해당 챔피언을 찾을 수 없습니다." << endl;
+        return;
+    }
+    if (champions[index].getName() == championName) {
+        cout << champions[index];
+        return;
+    }
+    SearchChampion(championName, index + 1);
+}
+
+void InsertChampion() {
+    if (numChampions >= MAX_CHAMPIONS) {
+        cout << "챔피언을 더 이상 추가할 수 없습니다. 최대 크기에 도달했습니다." << endl;
+        return;
+    }
+
+    cout << "챔피언 정보를 입력하세요(name hp mp speed range position): ";
+    string name, position;
+    int hp, mp, speed, range;
+    cin >> name >> hp >> mp >> speed >> range >> position;
+
+    champions[numChampions++] = Champion(name, hp, mp, speed, range, position);
+    cout << "챔피언이 추가되었습니다." << endl;
+
+    char choice;
+    cout << "더 추가하시겠습니까? (Y/N): ";
+    cin >> choice;
+    if (toupper(choice) == 'Y') {
+        InsertChampion();
+    }
+}
+
+void DeleteChampion(const string& championName, int index = 0) {
+    if (index == numChampions) {
+        cout << "해당 챔피언을 찾을 수 없습니다." << endl;
+        return;
+    }
+
+    if (champions[index].getName() == championName) {
+        for (int j = index; j < numChampions - 1; ++j) {
+            champions[j] = champions[j + 1];
+        }
+        numChampions--;
+        cout << "챔피언 " << championName << "이(가) 삭제되었습니다." << endl;
+        return;
+    }
+
+    DeleteChampion(championName, index + 1);
+}
+
+void DeleteAllChampions(const string& position, int index = 0) {
+    if (index == numChampions) {
+        cout << "해당 포지션의 챔피언을 찾을수가 없습니다." << endl;
+        return;
+    }
+    if (champions[index].getPosition() == position) {
+        for (int j = index; j < numChampions - 1; ++j) {
+            champions[j] = champions[j + 1];
+        }
+        numChampions--;
+        DeleteAllChampions(position, index); 
+        cout << position << " 포지션의 모든 챔피언이 삭제되었습니다." << endl;
+        return;
+    }
+    DeleteAllChampions(position, index + 1);
+}
+
+void PrintAllChampions() {
+    for (int i = 0; i < numChampions; ++i) {
+        cout << champions[i];
+    }
+}
+
+void FindMaxHPChampion(int index = 0, int maxHpIndex = 0) {
+    if (index == numChampions) {
+        if (numChampions == 0) {
+            cout << "챔피언이 없습니다." << endl;
+            return;
+        }
+        cout << "체력이 가장 큰 챔피언: " << champions[maxHpIndex];
+        return;
+    }
+    if (champions[index].getHp() > champions[maxHpIndex].getHp()) {
+        maxHpIndex = index;
+    }
+    FindMaxHPChampion(index + 1, maxHpIndex);
+}
+
+void ChangeChampions(Champion& champ1, Champion& champ2) {
+    Champion temp = champ1;
+    champ1 = champ2;
+    champ2 = temp;
+}
+
+void SortByHP(int index = 0) {
+    if (index == numChampions - 1) {
+        cout << "체력이 큰 순서대로 정렬되었습니다." << endl;
+        return;
+    }
+    for (int j = 0; j < numChampions - index - 1; ++j) {
+        if (champions[j].getHp() < champions[j + 1].getHp()) {
+            ChangeChampions(champions[j], champions[j + 1]);
+        }
+    }
+    SortByHP(index + 1);
+}
+
+int main() {
+    ifstream in{ "testdata.txt" };
+    if (not in) {
+        cout << "파일을 찾을수가 없습니다." << '\n';
+        return 1;
+    }
+
+    string line;
+    string name, position;
+    int hp, mp, speed, range;
+    while (numChampions < MAX_CHAMPIONS && getline(in, line)) {
+        stringstream ss(line);
+        ss >> name >> hp >> mp >> speed >> range >> position;
+        champions[numChampions++] = Champion{ name, hp, mp, speed, range, position };
+    }
+
+    string command;
+    while (true) {
+        cout << "=========================저장된 챔피언 들===========================================" << '\n';
+        PrintAllChampions();
+        cout << "===================================================================================" << '\n';
+        cout << "명령어를 입력하세요[문제에 적혀있는'_R'은 생략하였음](search, insert, delete, deleteall, printall, findmaxhp, sortbyhp, q(종료)) : ";
+        cin >> command;
+        string championName;
+        if (command == "search") {
+            cout << "검색할 챔피언 이름을 입력하세요: ";
+            cin >> championName;
+            SearchChampion(championName);
+        }
+        else if (command == "insert") {
+            InsertChampion();
+        }
+        else if (command == "delete") {
+            cout << "삭제할 챔피언 이름을 입력하세요: ";
+            cin >> championName;
+            DeleteChampion(championName);
+        }
+        else if (command == "deleteall") {
+            string position;
+            cout << "삭제할 챔피언의 포지션을 입력하세요: ";
+            cin >> position;
+            DeleteAllChampions(position);
+        }
+        else if (command == "printall") {
+            PrintAllChampions();
+        }
+        else if (command == "findmaxhp") {
+            FindMaxHPChampion();
+        }
+        else if (command == "sortbyhp") {
+            SortByHP();
+        }
+        else if (command == "q") {
+            exit(0);
+        }
+    }
+    
+    return 0;
+}
