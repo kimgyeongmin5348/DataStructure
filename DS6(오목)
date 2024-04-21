@@ -57,7 +57,7 @@ void CountStone() {
 	// 가로줄 검사
 	for (int i = 0; i < SIZE; ++i) {
 		int bCount = 0, wCount = 0;
-		for (int j = 0; j < SIZE; ++j) {			
+		for (int j = 0; j < SIZE; ++j) {
 			if (board[i][j] == 1) {
 				bCount++;
 				wCount = 0;
@@ -70,7 +70,7 @@ void CountStone() {
 				maxCount = bCount;
 				maxStone = 1;
 			}
-			else if (whitestone > maxCount) {
+			if (whitestone > maxCount) {
 				maxCount = wCount;
 				maxStone = 2;
 			}
@@ -92,7 +92,7 @@ void CountStone() {
 				maxCount = bCount;
 				maxStone = 1;
 			}
-			else if (whitestone > maxCount) {
+			if (whitestone > maxCount) {
 				maxCount = wCount;
 				maxStone = 2;
 			}
@@ -100,7 +100,7 @@ void CountStone() {
 	}
 	if (maxStone == 1)
 		cout << "흑돌이" << maxCount << "개 연속으로 놓였습니다." << '\n';
-	else if(maxStone ==2)
+	else if (maxStone == 2)
 		cout << "백돌이" << maxCount << "개 연속으로 놓였습니다." << '\n';
 }
 
@@ -184,13 +184,17 @@ int main() {
 		}
 
 		cout << "c 를 누르면 가로,세로줄의 돌 개수를 구합니다." << '\n';
+		cout << "v 를 누르면 대각선중에서 가장 긴 돌이랑 개수를 구합니다." << '\n';
 		cout << "명령어를 누르시오 또는 계속 하시려면 아무키나 누르시오 : ";
 		cin >> command;
 		if (command == 'c') {
 			CountStone();
 			continue;
 		}
-		
+		if (command == 'v') {
+			CrossCount();
+			continue;
+		}
 
 	}
 
