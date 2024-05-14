@@ -1,0 +1,227 @@
+#include <iostream>
+#include <fstream>
+#include <chrono>
+
+using namespace std;
+
+class Champion {
+private:
+	string position;
+	string name;
+	int hp;
+	int attack;
+	int shield;
+
+public:
+	Champion() {}
+	Champion(const string&position, string& name , int hp, int attack, int shield):position(position), name(name),hp(hp),attack(attack),shield(shield){}
+
+	string getPosition() const {
+		return position;
+	}
+	string getName() const {
+		return name;
+	}
+	int getHp() const {
+		return hp;
+	}
+	int getAttack() const {
+		return attack;
+	}
+	int getShield() const {
+		return shield;
+	}
+
+	void show() const {
+		cout << "포지션 : " << position << "  이름 : " << name << "  hp : " << hp << "  공격력 : " << attack << "  방어력 : " << shield << '\n';
+	}
+
+};
+
+
+struct Node{
+	Champion data;
+	Node* next;
+	Node* prev;
+
+	Node(const Champion& champ) : data(champ), next(nullptr){}
+};
+
+void swap(Node* a, Node* b) {
+	Champion temp = a->data;
+	a->data = b->data;
+	b->data = temp;
+}
+
+class LinkedList {
+private:
+	Node* head;
+
+public:
+	LinkedList() : head(nullptr) {}
+
+	/*void insert_SL(const Champion& champ) {
+		Node* newNode = new Node(champ);
+		if (head == nullptr) {
+			head = newNode;
+			head->next = head;
+		}
+		else {
+			Node* temp = head;
+			while (temp->next != head) {
+				temp = temp->next;
+			}
+			temp->next = newNode;
+			newNode->next = head;
+		}
+	}*/
+
+	void PrintAll_SL() {
+		Node* temp = head;
+		do {
+			temp->data.show();
+			temp = temp->next;
+		} while (temp != head);
+	}
+
+	void SortByName_SL() {
+		Node* i = head;
+		do {
+			Node* j = i->next;
+			while (j != head) {
+				if (i->data.getName() > j->data.getName()) {
+					swap(i, j);
+				}
+				j = j->next;
+			}
+			i = i->next;
+		} while (i != head);
+	}
+
+	void FindMaxHp() {
+		Node* temp = head;
+		Node* maxNode = head;
+		do {
+			if (temp->data.getHp() > maxNode->data.getHp()) {
+				maxNode = temp;
+			}
+			temp = temp->next;
+		} while (temp != head);
+		maxNode->data.show();
+	}
+
+};
+
+class DoubleLinkedList {
+private:
+	Node* head;
+	Node* tail;
+
+public:
+	DoubleLinkedList():head(nullptr),tail(nullptr){}
+
+	void PrintAll_DL() {
+		Node* temp = head;
+		while (temp != nullptr) {
+			temp->data.show();
+			temp = temp->next;
+		}
+	}
+
+	void SortByName_DL() {
+		if (head == nullptr || head->next == nullptr) {
+			return;
+		}
+
+		bool swapped;
+		do {
+			swapped = false;
+			Node* current = head;
+			while (current->next != nullptr) {
+				if (current->data.getName() > current->next->data.getName()) {
+					swap(current, current->next);
+					swapped = true;
+				}
+				current = current->next;
+			}
+		} while (swapped);
+	}
+
+	Champion FindMaxHp_DL() {
+		if (head == nullptr) {
+			return Champion();
+		}
+
+		Node* temp = head;
+		Champion maxHpChamp = temp->data;
+		while (temp != nullptr) {
+			if (temp->data.getHp() > maxHpChamp.getHp()) {
+				maxHpChamp = temp->data;
+			}
+			temp = temp->next;
+		}
+
+		return maxHpChamp;
+	}
+
+};
+
+
+int main() {
+	
+	ifstream in{ "LOLDic.txt" };
+
+	if (not in)
+		return 0;
+
+	LinkedList list;
+	DoubleLinkedList doubleList;
+	string position, name;
+	int hp, attack, shield;
+
+	/*while (in >> position >> name >> hp >> attack >> shield) {
+		Champion champ(position, name, hp, attack, shield);
+		list.insert_SL(champ);
+	}*/
+
+	auto start = chrono::high_resolution_clock::now();
+	list.PrintAll_SL();
+	auto stop = chrono::high_resolution_clock::now();
+	auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+	cout << "PrintAll_SL() took: " << duration.count() << " microseconds" << endl;
+
+	start = chrono::high_resolution_clock::now();
+	doubleList.PrintAll_DL();
+	stop = chrono::high_resolution_clock::now();
+	duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+	cout << "PrintAll_DL() took: " << duration.count() << " microseconds" << endl;
+
+	//=====================================================================================================
+	start = chrono::high_resolution_clock::now();
+	list.SortByName_SL();
+	stop = chrono::high_resolution_clock::now();
+	duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+	cout << "SortByName_SL() took: " << duration.count() << " microseconds" << endl;
+
+	start = chrono::high_resolution_clock::now();
+	doubleList.SortByName_DL();
+	stop = chrono::high_resolution_clock::now();
+	duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+	cout << "SortByName_DL() took: " << duration.count() << " microseconds" << endl;
+
+	//=====================================================================================================
+	start = chrono::high_resolution_clock::now();
+	list.FindMaxHp();
+	stop = chrono::high_resolution_clock::now();
+	duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+	cout << "FindMaxHp_SL() took: " << duration.count() << " microseconds" << endl;
+
+	start = chrono::high_resolution_clock::now();
+	doubleList.FindMaxHp_DL();
+	stop = chrono::high_resolution_clock::now();
+	duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+	cout << "FindMaxHp_DL() took: " << duration.count() << " microseconds" << endl;
+
+	return 0;
+
+}
