@@ -188,39 +188,39 @@ int main() {
 	list.PrintAll_SL();
 	auto stop = chrono::high_resolution_clock::now();
 	auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-	cout << "PrintAll_SL() took: " << duration.count() << " microseconds" << endl;
+	cout << "PrintAll_SL() : " << duration.count() << endl;
 
 	start = chrono::high_resolution_clock::now();
 	doubleList.PrintAll_DL();
 	stop = chrono::high_resolution_clock::now();
 	duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-	cout << "PrintAll_DL() took: " << duration.count() << " microseconds" << endl;
+	cout << "PrintAll_DL() : " << duration.count()  << endl;
 
 	//=====================================================================================================
-	start = chrono::high_resolution_clock::now();
+	auto start = chrono::high_resolution_clock::now();
 	list.SortByName_SL();
-	stop = chrono::high_resolution_clock::now();
-	duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-	cout << "SortByName_SL() took: " << duration.count() << " microseconds" << endl;
+	auto stop = chrono::high_resolution_clock::now();
+	auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+	cout << "SortByName_SL() : " << duration.count()  << endl;
 
 	start = chrono::high_resolution_clock::now();
 	doubleList.SortByName_DL();
 	stop = chrono::high_resolution_clock::now();
 	duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-	cout << "SortByName_DL() took: " << duration.count() << " microseconds" << endl;
+	cout << "SortByName_DL() : " << duration.count()  << endl;
 
 	//=====================================================================================================
 	start = chrono::high_resolution_clock::now();
 	list.FindMaxHp();
 	stop = chrono::high_resolution_clock::now();
 	duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-	cout << "FindMaxHp_SL() took: " << duration.count() << " microseconds" << endl;
+	cout << "FindMaxHp_SL() : " << duration.count() << endl;
 
 	start = chrono::high_resolution_clock::now();
 	doubleList.FindMaxHp_DL();
 	stop = chrono::high_resolution_clock::now();
 	duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-	cout << "FindMaxHp_DL() took: " << duration.count() << " microseconds" << endl;
+	cout << "FindMaxHp_DL() : " << duration.count() << endl;
 
 	return 0;
 
