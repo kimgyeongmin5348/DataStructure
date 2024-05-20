@@ -1,0 +1,183 @@
+#include <iostream>
+#include <fstream>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+
+class Champion {
+private:
+	string name;
+	int hp;
+	int mp;
+	int speed;
+	int range;
+	string position;
+
+public:
+	Champion() {}
+	Champion(const string& name, int hp, int mp, int speed, int range, string& position)
+		:name(name), hp(hp), mp(mp),speed(speed), range(range), position(position){}
+
+	string getName() const {
+		return name;
+	}
+
+	int getHp() const {
+		return hp;
+	}
+
+	int getMp() const {
+		return hp;
+	}
+
+	int getSpeed() const {
+		return speed;
+	}
+
+	int getRange() const {
+		return range;
+	}
+
+	string getPosition() const {
+		return position;
+	}
+
+	void show() {
+		cout << "이름 : " << name << "  HP : " << hp << "  MP : " << mp << "  SPEED : " << speed << "  RANGE : " << range <<
+			"  포지션 : " << position << '\n';
+	}
+};
+
+struct SNode {
+	Champion data;
+	SNode* next;
+};
+
+struct DNode {
+	Champion data;
+	DNode* next;
+	DNode* prev;
+};
+
+void swap_SL(SNode* a, SNode* b) {
+	Champion temp = a->data;
+	a->data = b->data;
+	b->data = temp;
+}
+
+void swap_DL(DNode* a, DNode* b) {
+	Champion temp = a->data;
+	a->data = b->data;
+	b->data = temp;
+}
+
+class LinkedLink {
+private:
+	SNode* head;
+
+public:
+
+	LinkedLink() { head = NULL; }
+
+	void addLinked(Champion champ) {
+		SNode* newNode = new SNode;
+		newNode->data = champ;
+		newNode->next = head;
+		head = newNode;
+	}
+
+	void InsertChamp_SL() {
+		cout << "챔피언의 정보를 입력하시오(이름,hp,mp,speed,range,포지션) : ";
+		
+		string name, position;
+		int hp, mp, speed, range;
+		cin >> name >> hp >> mp >> speed >> range >> position;
+
+		Champion champ(name, hp, mp, speed, range, position);
+
+		addLinked(champ);
+	}
+
+	void DeleteChamp_SL() {
+		cout << "삭제할 쳄프를 적으시오 : ";
+		string name;
+		cin >> name;
+
+		SNode* temp = head;
+		SNode* prev = NULL;
+
+		if (temp != NULL && temp->data.getName() == name) {
+			head = temp->next; // Changed head
+			delete temp;       // free old head
+			return;
+		}
+
+		while (temp != NULL && temp->data.getName() != name) {
+			prev = temp;
+			temp = temp->next;
+		}
+
+		if (temp == NULL) return;
+
+		prev->next = temp->next;
+
+		delete temp;
+
+	}
+
+	void PrintALL_SL() {
+		SNode* temp = head;
+		while (temp!=NULL)
+		{
+			temp->data.show();
+			temp->next;
+		}
+	}
+
+};
+
+
+int main() {
+
+	ifstream in{ "testdata.txt" };
+
+	if (not in)
+		return 0;
+
+	LinkedLink ll;
+	string name, position;
+	int hp, mp, speed, range;
+
+	while (in >> name >> hp >> mp >> speed >> range >> position) {
+		Champion champ(name, hp, mp, speed, range, position);
+		ll.addLinked(champ);
+	}
+
+	while (true) {
+		string command;
+		cout << "========================================= 저장된 챔프들 ===========================================" << '\n';
+		ll.PrintALL_SL();
+		cout << "===================================================================================================" << '\n';
+		cout << "명령어를 입력하세요 : ";
+		cin >> command;
+
+		if (command == "insert_sl") {
+			ll.InsertChamp_SL();
+		}
+		else if (command == "print_sl") {
+			ll.PrintALL_SL();
+		}
+		else if (command == "delete_sl") {
+			ll.DeleteChamp_SL();
+		}
+		else if (command == "q") {
+			exit(0);
+		}
+
+
+	}
+
+
+
+}
