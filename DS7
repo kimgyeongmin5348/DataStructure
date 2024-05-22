@@ -99,26 +99,26 @@ public:
 		addLinked(champ);
 	}
 
-	void DeleteChamp_SL() {
-		cout << "삭제할 쳄프를 적으시오 : ";
-		string name;
-		cin >> name;
+	void DeleteChamp_SL(string champname) {
 
 		SNode* temp = head;
 		SNode* prev = NULL;
 
-		if (temp != NULL && temp->data.getName() == name) {
-			head = temp->next; // Changed head
-			delete temp;       // free old head
+		if (temp != NULL && temp->data.getName() == champname) {
+			head = temp->next;
+			delete temp;       
 			return;
 		}
 
-		while (temp != NULL && temp->data.getName() != name) {
+		while (temp != NULL && temp->data.getName() != champname) {
 			prev = temp;
 			temp = temp->next;
 		}
 
-		if (temp == NULL) return;
+		if (temp == NULL) {
+			cout << "해당 이름을 가진 챔프는 없습니다." << '\n';
+			return;
+		}
 
 		prev->next = temp->next;
 
@@ -126,14 +126,184 @@ public:
 
 	}
 
+	void DeleteAll_SL(string line) {
+		
+		SNode* temp = head;
+		SNode* prev = NULL;
+
+		while (temp != NULL && temp->data.getPosition() == line) {
+			head = temp->next;
+			delete temp;
+			temp = head;
+		}
+
+		if (temp == NULL) {
+			cout << "해당 포지션의 챔피언을 찾을 수가 없습니다." << '\n';
+			return;
+		}
+
+		
+		while (temp != NULL) {
+			while (temp != NULL && temp->data.getPosition() != line) {
+				prev = temp;
+				temp = temp->next;
+			}
+
+			
+			if (temp != NULL) {
+				prev->next = temp->next;
+				delete temp;
+
+				
+				temp = prev->next;
+			}
+		}
+	}
+
+	void FindMaxHPChampion_SL() {
+		SNode* temp = head;
+		SNode* maxNode = head;
+		
+		while (temp != NULL) {
+			if (temp->data.getHp() > maxNode->data.getHp()) {
+				maxNode = temp;
+			}
+			temp = temp->next;
+		}
+		maxNode->data.show();
+	}
+
+	void SortByHP_SL() {
+		
+		bool swaped;
+		do {
+			swaped = false;
+			SNode* temp = head;
+			while (temp->next != NULL) {
+				if (temp->data.getHp() < temp->next->data.getHp()) {
+					swap_SL(temp, temp->next);
+					swaped = true;
+				}
+				temp = temp->next;
+			}
+		} while (swaped);
+	}
+
 	void PrintALL_SL() {
 		SNode* temp = head;
 		while (temp!=NULL)
 		{
 			temp->data.show();
-			temp->next;
+			temp = temp->next;
 		}
 	}
+
+};
+
+class DoubleLinkedLink {
+private:
+	DNode* head;
+	DNode* tail;
+
+public:
+
+	DoubleLinkedLink() { head = NULL, tail = NULL; }
+
+	void addLinked_DL(Champion champ) {
+		DNode* newNode = new DNode;
+		newNode->data = champ;
+		newNode->next = head;
+
+		if (head != NULL) {
+			head->prev = newNode;
+		}
+		head = newNode;
+		if (tail == NULL) {
+			tail = newNode;
+		}
+	}
+
+	void InsertChamp_DL() {
+		cout << "추가할 챔프의 정보를 입력하세요(이름,피,마나,속도,사거리,포지션) : ";
+		string name, position;
+		int hp, mp, speed, range;
+		cin >> name >> hp >> mp >> speed >> range >> position;
+		Champion champ(name, hp, mp, speed, range, position);
+
+		addLinked_DL(champ);
+	}
+
+	void DeleteChamp_DL(string champname) {
+		DNode* temp = head;
+
+		while (temp != NULL) {
+			if (temp->data.getName() == champname) {
+				if (temp->prev != NULL) temp->prev->next = temp->next;
+				if (temp->next != NULL) temp->next->prev = temp->prev;
+				delete temp;
+				return;
+			}
+			temp = temp->next;
+		}
+		
+	}
+
+	void DeleteAll_DL(string line) {
+		DNode* temp = head;
+
+		while (temp != NULL) {
+			DNode* next = temp->next;
+			if (temp->data.getPosition() == line) {
+				if (temp == head)
+					head = next;
+				if (temp == tail)
+					tail = temp->prev;
+				if (temp->prev != NULL)
+					temp->prev->next = next;
+				if (next != NULL)
+					next->prev = temp->prev;
+				delete temp;
+			}
+			temp = next;
+		}
+	}
+
+	void FindMaxHPChampion_DL() {
+		DNode* temp = head;
+		DNode* maxHpChamp = head;
+		while (temp != NULL) {
+			if (temp->data.getHp() > maxHpChamp->data.getHp()) {
+				maxHpChamp = temp;
+			}
+			temp = temp->next;
+		}
+		maxHpChamp->data.show();
+	}
+
+	void SortByHP_DL() {
+		bool swapped;
+		do {
+			swapped = false;
+			DNode* temp = head;
+			while (temp->next != NULL) {
+				if (temp->data.getHp() < temp->next->data.getHp()) {
+					swap_DL(temp, temp->next);
+					swapped = true;
+				}
+				temp = temp->next;
+			}
+		} while (swapped);
+		
+	}
+
+	void PrintALL_DL() {
+		DNode* temp = head;
+		while (temp != NULL) {
+			temp->data.show();
+			temp = temp->next;
+		}
+	}
+
 
 };
 
@@ -146,31 +316,110 @@ int main() {
 		return 0;
 
 	LinkedLink ll;
+	DoubleLinkedLink dll;
 	string name, position;
 	int hp, mp, speed, range;
 
 	while (in >> name >> hp >> mp >> speed >> range >> position) {
 		Champion champ(name, hp, mp, speed, range, position);
 		ll.addLinked(champ);
+		dll.addLinked_DL(champ);
 	}
 
 	while (true) {
 		string command;
-		cout << "========================================= 저장된 챔프들 ===========================================" << '\n';
-		ll.PrintALL_SL();
-		cout << "===================================================================================================" << '\n';
+		cout << "명령어 : printall, insert_sl, insert_dl, delete, deleteall, findmaxhp, sortbyhp " << '\n';
 		cout << "명령어를 입력하세요 : ";
 		cin >> command;
 
 		if (command == "insert_sl") {
+			auto start = high_resolution_clock::now();
 			ll.InsertChamp_SL();
+			auto stop = high_resolution_clock::now();
+			auto whattime_sl = duration_cast<microseconds>(stop - start);
+			cout << "단일 수행시간 : " << whattime_sl.count() / 1000000.0 << " 초" << '\n';
 		}
-		else if (command == "print_sl") {
+		else if (command == "insert_dl") {
+			auto start = high_resolution_clock::now();
+			dll.InsertChamp_DL();
+			auto stop = high_resolution_clock::now();
+			auto whattime = duration_cast<microseconds>(stop - start);
+			cout << "이중 수행시간 : " << whattime.count() / 1000000.0 << " 초" << '\n';
+		}
+		else if (command == "printall") {
+			cout << "========================================= 저장된 챔프들 ===========================================" << '\n';
+			auto start = high_resolution_clock::now();
 			ll.PrintALL_SL();
+			auto stop = high_resolution_clock::now();
+			auto whattime_sl = duration_cast<microseconds>(stop - start);
+			cout << "==================================================================================================" << '\n';
+			start = high_resolution_clock::now();
+			dll.PrintALL_DL();
+			stop = high_resolution_clock::now();
+			auto whattime = duration_cast<microseconds>(stop - start);
+			cout << "단일 수행시간 : " << whattime_sl.count() / 1000000.0 << " 초" << '\n';
+			cout << "이중 수행시간 : " << whattime.count() / 1000000.0 << " 초" << '\n';
+			cout << "===================================================================================================" << '\n';
 		}
-		else if (command == "delete_sl") {
-			ll.DeleteChamp_SL();
+		else if (command == "delete") {
+			cout << "삭제할 챔프의 이름을 적으시오 : ";
+			string champname;
+			cin >> champname;
+			auto start = high_resolution_clock::now();
+			ll.DeleteChamp_SL(champname);
+			auto stop = high_resolution_clock::now();
+			auto how_sl = duration_cast<microseconds>(stop - start);
+			start = high_resolution_clock::now();
+			dll.DeleteChamp_DL(champname);
+			stop = high_resolution_clock::now();
+			auto how_dl = duration_cast<microseconds>(stop - start);
+			cout << "단일 수행시간 : " << how_sl.count() / 1000000.0 << " 초" << '\n';
+			cout << "이중 수행시간 : " << how_dl.count() / 1000000.0 << " 초" << '\n';
 		}
+		else if (command == "deleteall") {
+			cout << "전체를 삭제할 라인을 적으시오 : ";
+			string line;
+			cin >> line;
+			auto start = high_resolution_clock::now();
+			ll.DeleteAll_SL(line);
+			auto stop = high_resolution_clock::now();
+			auto time_sl = duration_cast<microseconds>(stop - start);
+			start = high_resolution_clock::now();
+			dll.DeleteAll_DL(line);
+			stop = high_resolution_clock::now();
+			auto time_dl = duration_cast<microseconds>(stop - start);
+			cout << "단일 수행시간 : " << time_sl.count() / 1000000.0 << " 초" << '\n';
+			cout << "이중 수행시간 : " << time_dl.count() / 1000000.0 << " 초" << '\n';
+		}
+		else if(command == "findmaxhp") {
+			auto start = high_resolution_clock::now();
+			cout << "==================================================================================================" << '\n';
+			ll.FindMaxHPChampion_SL();
+			cout << "==================================================================================================" << '\n';
+			auto stop = high_resolution_clock::now();
+			auto how = duration_cast<microseconds>(stop - start);
+			start = high_resolution_clock::now();
+			cout << "==================================================================================================" << '\n';
+			dll.FindMaxHPChampion_DL();
+			cout << "==================================================================================================" << '\n';
+			stop = high_resolution_clock::now();
+			auto how_dl = duration_cast<microseconds>(stop - start);
+			cout << "단일 수행시간 : " << how.count() / 1000000.0 << " 초" << '\n';
+			cout << "이중 수행시간 : " << how_dl.count() / 1000000.0 << " 초" << '\n';
+		}
+		else if (command == "sortbyhp") {	
+			auto start = high_resolution_clock::now();
+			ll.SortByHP_SL();
+			auto stop = high_resolution_clock::now();
+			auto time_sl = duration_cast<microseconds>(stop - start);
+			start = high_resolution_clock::now();
+			dll.SortByHP_DL();
+			stop = high_resolution_clock::now();
+			auto time_dl = duration_cast<microseconds>(stop - start);
+			cout << "단일 수행시간 : " << time_sl.count() / 1000000.0 << " 초" << '\n';
+			cout << "이중 수행시간 : " << time_dl.count() / 1000000.0 << " 초" << '\n';
+		}
+
 		else if (command == "q") {
 			exit(0);
 		}
