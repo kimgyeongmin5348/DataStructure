@@ -1,0 +1,313 @@
+#include <iostream>
+#include <fstream>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
+
+class Champion {
+private:
+	string position;
+	string name;
+	int hp;
+	int attack;
+	int shield;
+
+public:
+	Champion() {}
+	Champion(const string& position, string& name, int hp, int attack, int shield) :position(position), name(name), hp(hp), attack(attack), shield(shield) {}
+
+	string getPosition() const {
+		return position;
+	}
+	string getName() const {
+		return name;
+	}
+	int getHp() const {
+		return hp;
+	}
+	int getAttack() const {
+		return attack;
+	}
+	int getShield() const {
+		return shield;
+	}
+
+	void show() const {
+		cout << "포지션 : " << position << "  이름 : " << name << "  hp : " << hp << "  공격력 : " << attack << "  방어력 : " << shield << '\n';
+	}
+
+};
+
+
+struct SNode {
+	Champion data;
+	SNode* next;
+};
+
+void swap_SL(SNode* a, SNode* b) {
+	Champion temp = a->data;
+	a->data = b->data;
+	b->data = temp;
+}
+
+
+class LinkedList {
+private:
+	SNode* head;
+
+public:
+	LinkedList() { head = NULL; }
+
+	void addNode_SL(Champion champ) {
+		SNode* newNode = new SNode;
+		newNode->data = champ;
+		newNode->next = head;
+		head = newNode;
+	}
+
+	void PrintAll_SL() {
+		SNode* temp = head;
+		while (temp != NULL) {
+			temp->data.show();
+			temp = temp->next;
+		}
+	}
+
+	void SortByName_SL() {
+		if (head == NULL || head->next == NULL) {
+			return;
+		}
+
+		bool swapped;
+		do {
+			swapped = false;
+			SNode* current = head;
+			while (current->next != NULL) {
+				if (current->data.getName() > current->next->data.getName()) {
+					swap_SL(current, current->next);
+					swapped = true;
+				}
+				current = current->next;
+			}
+		} while (swapped);
+	}
+
+	void FindMaxHp() {
+		if (head == NULL) {
+			cout << "비어있습니다." << endl;
+			return;
+		}
+
+		SNode* temp = head;
+		SNode* maxNode = head;
+		while (temp != NULL) {
+			if (temp->data.getHp() > maxNode->data.getHp()) {
+				maxNode = temp;
+			}
+			temp = temp->next;
+		}
+		maxNode->data.show();
+	}
+
+};
+
+struct TreeNode {
+	Champion data;
+	TreeNode* left;
+	TreeNode* right;
+};
+
+class BinarySearchTree {
+private:
+	TreeNode* root;
+
+	TreeNode* insert_BT(TreeNode* node, Champion champ) {
+		if (node == NULL) {
+			node = new TreeNode;
+			node->data = champ;
+			node->left = node->right = NULL;
+		}
+		else if (champ.getName() < node->data.getName())
+			node->left = insert_BT(node->left, champ);
+		else if (champ.getName() > node->data.getName())
+			node->right = insert_BT(node->right, champ);
+		return node;
+	}
+
+	TreeNode* delete_BT(TreeNode* node, string name) {
+		if (node == NULL)
+			return NULL;
+		if (name < node->data.getName())
+			node->left = delete_BT(node->left, name);
+		else if (name > node->data.getName())
+			node->right = delete_BT(node->right, name);
+		else {
+			if (node->left == NULL) {
+				TreeNode* temp = node->right;
+				delete node;
+				return temp;
+			}
+			else if (node->right == NULL) {
+				TreeNode* temp = node->left;
+				delete node;
+				return temp;
+			}
+			else {
+				TreeNode* temp = minValueNode(node->right);
+				node->data = temp->data;
+				node->right = delete_BT(node->right, temp->data.getName());
+			}
+		}
+		return node;
+	}
+
+	TreeNode* minValueNode(TreeNode* node) {
+		TreeNode* current = node;
+		while (current && current->left != NULL)
+			current = current->left;
+		return current;
+	}
+
+	TreeNode* searchByName_BT(TreeNode* node, string name) {
+		if (node == NULL || node->data.getName() == name)
+			if (node != NULL) {
+				node->data.show();
+			}
+			return node;
+		if (node->data.getName() < name)
+			return searchByName_BT(node->right, name);
+		return searchByName_BT(node->left, name);
+	}
+
+	void printAll_BT(TreeNode* node) {
+		if (node != NULL) {
+			printAll_BT(node->left);
+			node->data.show();
+			printAll_BT(node->right);
+		}
+	}
+
+public:
+	BinarySearchTree() { root = NULL; }
+
+	void Insert_BT(Champion champ) {
+		root = insert_BT(root, champ);
+	}
+
+	void Delete_BT(string name) {
+		root = delete_BT(root, name);
+	}
+
+	Champion* SearchByName_BT(string name) {
+		TreeNode* res = searchByName_BT(root, name);
+		return res ? &res->data : NULL;
+	}
+
+	void PrintAll_BT() {
+		printAll_BT(root);
+	}
+
+	void SortByName_BT() {
+		PrintAll_BT();
+	}
+};
+
+
+
+int main() {
+
+	ifstream in{ "LOLDic.txt" };
+
+	if (not in)
+		return 0;
+
+	LinkedList list;
+	BinarySearchTree bst;
+	string position, name;
+	int hp, attack, shield;
+
+	while (in >> position >> name >> hp >> attack >> shield) {
+		Champion champ(position, name, hp, attack, shield);
+		list.addNode_SL(champ);
+		bst.Insert_BT(champ);
+	}
+	while (true) {
+		cout << "검색할 자료를 적으시오.(sortbyname_sl, searchbyaname, insert, delete, printall, sortbyname, q(종료)) :";
+		string command;
+		cin >> command;
+		if (command == "sortbyname_sl") {
+			auto start = high_resolution_clock::now();
+			list.SortByName_SL();
+			auto stop = high_resolution_clock::now();
+			auto duration = duration_cast<microseconds>(stop - start);
+			cout << "=====================================================================================================" << '\n';
+			cout << "SortByName_SL() 수행 시간 : " << duration.count() / 1000000.0 << " 초" << '\n';
+			cout << "=====================================================================================================" << '\n';
+		}
+
+		if (command == "searchbyname") {
+			cout << "검색할 챔프 이름을 작성 하시오 : ";
+			cin >> name;
+			auto start = high_resolution_clock::now();
+			bst.SearchByName_BT(name);
+			auto stop = high_resolution_clock::now();
+			auto duration = chrono::duration_cast<microseconds>(stop - start);
+			cout << "=====================================================================================================" << '\n';
+			cout << "SearchByName_BT() 수행 시간 : " << duration.count() / 1000000.0 << " 초" << '\n';
+			cout << "=====================================================================================================" << '\n';
+		}
+		if (command == "insert") {
+			cout << "추가할 챔프의 특성을 적으시오 : ";
+			cin >> position >> name >> hp >> attack >> shield;
+			Champion champ(position, name, hp, attack, shield);
+			auto start = high_resolution_clock::now();
+			bst.Insert_BT(champ);
+			auto stop = high_resolution_clock::now();
+			auto duration = duration_cast<microseconds>(stop - start);
+			cout << "=====================================================================================================" << '\n';
+			cout << "insert_BT() 수행시간 : " << duration.count() / 1000000.0 << " 초" << '\n';
+			cout << "=====================================================================================================" << '\n';
+		}
+
+		if (command == "delete") {
+			cout << "삭제할 챔프의 이름을 입력하시오 :";
+			cin >> name;
+			auto start = high_resolution_clock::now();
+			bst.Delete_BT(name);
+			auto stop = high_resolution_clock::now();
+			auto duration = duration_cast<microseconds>(stop - start);
+			cout << "=====================================================================================================" << '\n';
+			cout << "Delete_BT() 수행시간 : " << duration << " 초" << '\n';
+			cout << "=====================================================================================================" << '\n';
+
+		}
+
+		if (command == "printall") {
+			auto start = high_resolution_clock::now();
+			bst.PrintAll_BT();
+			auto stop = high_resolution_clock::now();
+			auto duration = duration_cast<microseconds>(stop - start);
+			cout << "=====================================================================================================" << '\n';
+			cout << "PrintAll_BT() 수행시간 : " << duration << " 초" << '\n';
+			cout << "=====================================================================================================" << '\n';
+		}
+
+		if (command == "sortbyname") {
+			auto start = high_resolution_clock::now();
+			bst.SortByName_BT();
+			auto stop = high_resolution_clock::now();
+			auto duration = duration_cast<microseconds>(stop - start);
+			cout << "=====================================================================================================" << '\n';
+			cout << "SortByName_BT() 수행 시간 : " << duration.count() / 1000000.0 << " 초" << '\n';
+			cout << "=====================================================================================================" << '\n';
+		}
+		if (command == "q") {
+			exit(0);
+		}
+	}
+
+
+	return 0;
+
+}
